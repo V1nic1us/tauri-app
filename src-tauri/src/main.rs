@@ -64,7 +64,7 @@ fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
     // Executando comando de impressão
     let output = Command::new("powershell")
         .arg("-Command")
-        .arg(format!("Start-Process -FilePath \"{}\" -ArgumentList \"-d {} -o raw\"", temp_file_path.to_str().unwrap(), impressora))
+        .arg(format!(r"print \d:'{}' '{}'", temp_file_path.to_str().unwrap(), impressora))
         .output();
 
     eprintln!("output: {:?}", output);
