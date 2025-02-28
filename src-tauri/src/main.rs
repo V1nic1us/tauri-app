@@ -40,9 +40,8 @@ fn listar_impressoras() -> Vec<String> {
     impressoras
 }
 
-
-#[command]
 #[cfg(target_os = "windows")]
+#[command]
 fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
     // Criando arquivo temporário para impressão
     let temp_dir = env::temp_dir();
@@ -76,6 +75,7 @@ fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
 }
 
 #[cfg(target_os = "linux")]
+#[command]
 fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
     // Criando arquivo temporário para impressão
     let temp_dir = env::temp_dir();
