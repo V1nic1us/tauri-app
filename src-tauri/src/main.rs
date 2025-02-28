@@ -42,6 +42,40 @@ fn listar_impressoras() -> Vec<String> {
 
 
 #[command]
+#[cfg(target_os = "windows")]
+fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
+    // Criando arquivo temporário para impressão
+    let temp_dir = env::temp_dir();
+    let temp_file_path = temp_dir.join("pedido.raw");
+    eprintln!("Arquivo temporário: {:?}", temp_file_path);
+
+    match File::create(&temp_file_path) {
+        Ok(mut file) => {
+            eprintln!("conteudo_arquivo: {:?}", conteudo_arquivo);
+
+            if let Err(e) = file.write_all(conteudo_arquivo.as_bytes()) {
+                eprintln!("conteudo_arquivo: {:?}", conteudo_arquivo);
+                return format!("Erro ao escrever arquivo: {}", e);
+            }
+            eprintln!("conteudo_arquivo: {:?}", conteudo_arquivo);
+        }
+        Err(e) => return format!("Erro ao criar arquivo: {}", e),
+    }
+
+    // Executando comando de impressão
+    let output = Command::new("powershell")
+        .arg("-Command")
+        .arg(format!("Start-Process -FilePath \"{}\" -ArgumentList \"-d {} -o raw\"", temp_file_path.to_str().unwrap(), impressora))
+        .output();
+
+    eprintln!("output: {:?}", output);
+    match output {
+        Ok(result) => String::from_utf8_lossy(&result.stdout).to_string(),
+        Err(e) => format!("Erro ao imprimir: {}", e),
+    }
+}
+
+#[cfg(target_os = "linux")]
 fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
     // Criando arquivo temporário para impressão
     let temp_dir = env::temp_dir();
@@ -69,6 +103,7 @@ fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
         .arg("raw")
         .arg(temp_file_path.to_str().unwrap()) // Passa o caminho do arquivo para `lp`
         .output();
+
     eprintln!("output: {:?}", output);
     match output {
         Ok(result) => String::from_utf8_lossy(&result.stdout).to_string(),
