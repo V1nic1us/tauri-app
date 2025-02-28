@@ -4,6 +4,25 @@ use std::fs::File;
 use std::io::Write;
 use std::env;
 
+#[cfg(target_os = "windows")]
+#[command]
+fn listar_impressoras() -> Vec<String> {
+    let output = Command::new("powershell")
+        .arg("-Command")
+        .arg("Get-Printer | Select-Object -ExpandProperty Name")
+        .output()
+        .expect("Falha ao executar Get-Printer");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let impressoras: Vec<String> = stdout
+        .lines()
+        .map(|linha| linha.trim().to_string())
+        .collect();
+
+    impressoras
+}
+
+#[cfg(target_os = "linux")]
 #[command]
 fn listar_impressoras() -> Vec<String> {
     let output = Command::new("lpstat")
