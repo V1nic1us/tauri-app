@@ -61,10 +61,14 @@ fn imprimir_pedido(impressora: String, conteudo_arquivo: String) -> String {
         Err(e) => return format!("Erro ao criar arquivo: {}", e),
     }
 
+    let impressora_format: String = impressora.replace(" ", "_");
+    let mut arg_name_printer: String = String::from("/D:");
+    arg_name_printer.push_str(&impressora_format);
+
     // Executando comando de impressão
-    let output = Command::new("powershell")
-        .arg("-Command")
-        .arg(format!(r"print \d:'{}' '{}'", temp_file_path.to_str().unwrap(), impressora))
+    let output = Command::new("print")
+        .arg(arg_name_printer)
+        .arg(temp_file_path.to_str().unwrap())
         .output();
 
     eprintln!("output: {:?}", output);
